@@ -28,6 +28,9 @@
         lispLibs = with pkgs.sbclPackages;
           oldAttrs.lispLibs ++ [cl_plus_ssl quri fast-io trivial-utf-8];
       });
+      cl-charms =
+        pkgs.sbclPackages.cl-charms.overrideLispAttrs
+        (oldAttrs: {nativeLibs = [pkgs.ncurses];});
       queues = pkgs.sbclPackages.queues.overrideLispAttrs (oldAttrs: {
         systems = ["queues" "queues.priority-cqueue" "queues.priority-queue" "queues.simple-cqueue" "queues.simple-queue"];
         lispLibs = oldAttrs.lispLibs ++ (with pkgs.sbclPackages; [bordeaux-threads]);
@@ -41,13 +44,13 @@
           rev = "12d629541da440fadf771b0225a051ae65fa342a";
           hash = "sha256-hb6GSWA7vUuvSSPSmfZ80aBuvSVyg74qveoCPRP2CeI=";
         };
-        lispLibs = with pkgs.sbcl.pkgs; [
+        lispLibs = with pkgs.sbclPackages; [
           bordeaux-threads
           bt-semaphore
           queues
         ];
       };
-      lem = pkgs.callPackage ./nix/default.nix {inherit micros lem-mailbox jsonrpc;};
+      lem = pkgs.callPackage ./nix/default.nix {inherit micros lem-mailbox jsonrpc cl-charms;};
     in {
       packages = {
         inherit lem;

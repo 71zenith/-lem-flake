@@ -6,6 +6,7 @@
   makeWrapper,
   micros,
   lem-mailbox,
+  cl-charms,
   lib,
   libffi,
   SDL2,
@@ -24,15 +25,16 @@ sbcl.buildASDFSystem rec {
     repo = "lem";
     rev = "f6333ee3908afc96c22987bc76de4773e56da2b6";
     hash = "sha256-VFl51FGUIPOhy2UoudxYCwcr0RyTxPZUe0aevpk+Vtk=";
+    # rev = "v2.2.0";
+    # sha256 = "sha256-aMPyeOXyFSxhh75eiAwMStLc2fO1Dwi2lQsuH0IYMd0=";
     fetchSubmodules = true;
   };
   lispLibs =
-    [micros lem-mailbox]
+    [micros lem-mailbox jsonrpc cl-charms]
     ++ (with sbcl.pkgs; [
       iterate
       closer-mop
       trivia
-      cl-charms
       cl-setlocale
       esrap
       parse-number
@@ -48,6 +50,10 @@ sbcl.buildASDFSystem rec {
       _3bmd
       _3bmd-ext-code-blocks
       log4cl
+      cl_plus_ssl
+      quri
+      fast-io
+      trivial-utf-8
       split-sequence
       str
       dexador
@@ -56,7 +62,6 @@ sbcl.buildASDFSystem rec {
       trivial-open-browser
       swank
       async-process
-      jsonrpc
       rove
     ]);
 
@@ -71,17 +76,17 @@ sbcl.buildASDFSystem rec {
     (load (concatenate 'string (sb-ext:posix-getenv "asdfFasl") "/asdf.fasl"))
     (asdf:operate :program-op :lem/executable)
   '';
-  # patches = [./remove-quicklisp.patch ./remove-build-operation.patch];
+  patches = [../changes.patch];
   installPhase = ''
-    mkdir -p $out/bin
-    cp -v lem $out/bin
-    wrapProgram $out/bin/lem \
-      --prefix LD_LIBRARY_PATH : $LD_LIBRARY_PATH \
+    # mkdir -p $out/bin
+    # cp -v lem $out/bin
+    # wrapProgram $out/bin/lem \
+    #   --prefix LD_LIBRARY_PATH : $LD_LIBRARY_PATH \
   '';
 
-  passthru = {
-    withPackages = import ./wrapper.nix {inherit makeWrapper sbcl lib symlinkJoin;};
-  };
+  # passthru = {
+  #   withPackages = import ./wrapper.nix {inherit makeWrapper sbcl lib symlinkJoin;};
+  # };
   # installPhase = ''
   #   mkdir -p $out/bin
   #   cp -v lem $out/bin
